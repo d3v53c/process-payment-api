@@ -1,4 +1,5 @@
 from core.view import APIView
+from core.response import Response
 
 
 class ProcessPayment(APIView):
@@ -8,4 +9,4 @@ class ProcessPayment(APIView):
     """
 
     def get(self, *args, **kwargs):
-        return Response('ProcessPayment')
+        return Response('ProcessPayment', status=200)
