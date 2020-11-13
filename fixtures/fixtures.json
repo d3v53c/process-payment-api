@@ -1,0 +1,7 @@
+{
+  "CreditCardNumber": "12345456",
+  "CardHolder": "Test",
+  "ExpirationDate": "2014-12-22T03:12:58.019077+00:00",
+  "SecurityCode": "1234",
+  "Amount": 100
+}
