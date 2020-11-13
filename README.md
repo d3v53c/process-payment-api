@@ -1,3 +1,3 @@
 # process-payment-api
 
-# A mock API for payment processing using Flask in Python.
+A mock API for payment processing using Flask in Python.
