@@ -1,4 +1,5 @@
 import datetime as dt
+import time
 
 
 class PaymentRequest:
@@ -8,27 +9,30 @@ class PaymentRequest:
     def __init__(self, *args, **kwargs):
         self._creditCardNumber = kwargs.pop('CreditCardNumber', None)
         self._cardHolder = kwargs.pop('CardHolder', None)
-        self._expirationDate = dt.datetime.now()
+        self._expirationDate = kwargs.pop('ExpirationDate', None)
         self._securityCode = kwargs.pop('SecurityCode', None)
         self._amount = kwargs.pop('Amount', None)
         return
 
     def choose_payment_method(self):
         """
+        Chooses a Payment method according to the request details.
+        Returns 
         """
         payment_methods = self.get_payment_methods()
-        gateway = dict(payment_id='cheap', **payment_methods.get('cheap'))
+        payment_method = dict(payment_id='cheap',
+                              **payment_methods.get('cheap'))
         if self._amount > 20:
-            gateway = dict(
+            payment_method = dict(
                 payment_id='expensive',
                 **payment_methods.get('expensive'),
             )
         if self._amount > 500:
-            gateway = dict(
+            payment_method = dict(
                 payment_id='premium',
                 **payment_methods.get('premium'),
             )
-        return gateway
+        return payment_method
 
     def get_payment_methods(self):
         """
@@ -38,20 +42,20 @@ class PaymentRequest:
         return dict(
             cheap=dict(
                 gateway='CheapPaymentGateway',
-                retry=0,
+                retry=0,  # no retry, if failed 500 status is returned.
                 strict=True,
                 tier=1,
             ),
             expensive=dict(
                 gateway='ExpensivePaymentGateway',
-                retry=1,
+                retry=1,  # 1 retry is permitted, still only to the lower tier.
                 strict=False,
                 tier=2,
             ),
             premium=dict(
                 gateway='PremiumPaymentGateway',
                 retry=3,
-                strict=True,
+                strict=True,  # 3 retries permitted, not to the lower tier.
                 tier=3,
             ),
         )
@@ -95,6 +99,7 @@ class PaymentRequest:
                 return dict(transaction_id='test'), None
             except Exception as e:
                 if strict:
+                    retry -= 1
                     continue
                 payment_method = self.get_lower_tier_payment_method(payment_id)
                 if payment_method:
@@ -167,3 +172,9 @@ class PaymentRequest:
             return methods_by_tiers[tier - 1]
         except IndexError:
             return None
+
+    def expiring_on(self):
+        """
+        Returns timestamp of the datetime object in Expiration date.
+        """
+        return time.mktime(self._expirationDate.timetuple())

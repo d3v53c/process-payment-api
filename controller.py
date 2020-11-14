@@ -1,4 +1,5 @@
 import json
+import time
 from flask_api import status
 from flask import request
 from marshmallow import ValidationError
@@ -23,19 +24,19 @@ class ProcessPayment(APIView):
         pr_schema = PaymentRequestSchema()
         try:
             payment_request = pr_schema.load(data)
+            if payment_request.expiring_on() < time.time():
+                raise ValidationError(f'Timestamp is past due.')
             processed_data, err = payment_request.process()
             if err:
                 raise Exception(str(err))
         except ValidationError as e:
-            print(e.messages)
-            raise
+            # print(e.messages)
             return Response(
                 message='The request is invalid.',
                 status=status.HTTP_400_BAD_REQUEST,
                 error=True,
             )
         except Exception as unknown_err:
-            raise
             return Response(
                 message='Unknown error occured.',
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
