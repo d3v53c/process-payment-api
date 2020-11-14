@@ -4,7 +4,7 @@ from flask import request
 from marshmallow import ValidationError
 from core.view import APIView
 from core.response import Response
-from core.serializers import PaymentRequestScheme
+from core.schema import PaymentRequestSchema
 
 
 class ProcessPayment(APIView):
@@ -20,9 +20,13 @@ class ProcessPayment(APIView):
         Http method: POST
         """
         data = request.data
-        pr_schema = PaymentRequestScheme()
+        pr_schema = PaymentRequestSchema()
         try:
-            results = pr_schema.load(data)
+            payment_request = pr_schema.load(data)
+            print(payment_request)
+            processed_data, err = payment_request.process()
+            if err:
+                raise Exception(str(err))
         except ValidationError as e:
             print(e.messages)
             raise
