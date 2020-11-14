@@ -82,9 +82,6 @@ class PaymentRequest:
         Here's where actually the payment is made.
         """
         while retry is not None and retry > -1:
-            print(
-                f"Loop start Gateway: {gateway}, Retry: {retry}, Strict: {strict}, Payment id: {payment_id}"
-            )
             if gateway is None or payment_id is None:
                 raise Exception(
                     "Internal Server error. Invalid payment gateway.")
@@ -97,22 +94,14 @@ class PaymentRequest:
                     raise Exception('Retry this madafaka')
                 return dict(transaction_id='test'), None
             except Exception as e:
-                print(
-                    f"Error: {str(e)} Retry: {retry} PaymentID: {payment_id} -------------------------0> make_payment"
-                )
                 if strict:
-                    print(f"Strict: {strict}")
                     continue
                 payment_method = self.get_lower_tier_payment_method(payment_id)
-                print(
-                    f"Payment Method: {payment_method} -------------------------0> make_payment"
-                )
                 if payment_method:
                     gateway = payment_method.get('gateway')
                     payment_id = payment_method.get('payment_id')
                     strict = payment_method.get('strict')
                     retry = payment_method.get('retry')
-                    print(f"Retry: {retry}")
                 else:
                     retry -= 1
             else:
@@ -123,9 +112,7 @@ class PaymentRequest:
         Retrieves a lower tier payment method available,
         if one is unavailable at the moment.
         """
-        print(f"ID: {identifier} -0> get_lower_tier_payment_method")
         tier = self.get_tier_of_payment_method(identifier)
-        print(f"Tier: {tier} -0> get_lower_tier_payment_method")
         while tier:
             tier -= 1
             payment_id = self.get_payment_method_by_tier(tier)
@@ -152,29 +139,23 @@ class PaymentRequest:
         with tiers.
         """
         payment_methods = self.get_payment_methods()
-        print(
-            f"Payment Methods: {payment_methods} -------------------------0> get_payment_method_tiers"
-        )
-        res = list(
+        # I'm aware this line is almost unreadable
+        return list(
             map(
                 lambda method: method['payment_id'],
                 list(
-                    sorted(map(
-                        lambda data: dict(payment_id=data[0], **data[1]),
-                        payment_methods.items()),
-                           key=lambda item: item.get('tier', 0)))))
-        print(f"Res: {res} -------------------")
-        return res
+                    sorted(
+                        map(lambda data: dict(payment_id=data[0], **data[1]),
+                            payment_methods.items()),
+                        key=lambda item: item.get('tier', 0),
+                    )),
+            ))
 
     def get_tier_of_payment_method(self, identifier):
         """
         Retrieves a tier of a particular payment method using identifier.
         """
-        print(f"Identifier: {identifier} -0> get_tier_of_payment_method")
         tiers = self.get_payment_method_tiers()
-        print(
-            f"Tiers: {tiers} -------------------------0> get_tier_of_payment_method"
-        )
         return tiers.index(identifier) + 1
 
     def get_payment_method_by_tier(self, tier):
@@ -183,12 +164,6 @@ class PaymentRequest:
         """
         try:
             methods_by_tiers = self.get_payment_method_tiers()
-            print(
-                f"Methods by Tiers: {methods_by_tiers} ======================> get_payment_method_by_tier"
-            )
-            print(
-                f"Tier: {tier} ======================> get_payment_method_by_tier"
-            )
             return methods_by_tiers[tier - 1]
         except IndexError:
             return None

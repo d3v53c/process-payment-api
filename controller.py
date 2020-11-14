@@ -23,7 +23,6 @@ class ProcessPayment(APIView):
         pr_schema = PaymentRequestSchema()
         try:
             payment_request = pr_schema.load(data)
-            print(payment_request)
             processed_data, err = payment_request.process()
             if err:
                 raise Exception(str(err))
