@@ -1,5 +1,6 @@
 import datetime as dt
 import time
+import json
 
 
 class PaymentRequest:
@@ -94,8 +95,10 @@ class PaymentRequest:
                 # something fishy
                 # payment_response = some_api.call()
                 # return payment_response
-                if gateway == 'ExpensivePaymentGateway':
-                    raise Exception('Retry this madafaka')
+                available = self.check_availability(gateway)
+                if not available:
+                    print(f"Gateway: {gateway} is not available")
+                    raise Exception("Payment Gateway not available.")
                 return dict(transaction_id='test'), None
             except Exception as e:
                 if strict:
@@ -178,3 +181,11 @@ class PaymentRequest:
         Returns timestamp of the datetime object in Expiration date.
         """
         return time.mktime(self._expirationDate.timetuple())
+
+    def check_availability(self, server_alias):
+        """
+        Checks availability of the payment servers.
+        """
+        with open('payment.server.json') as api:
+            data = json.load(api)
+        return data.get(server_alias, dict()).get('available', False)

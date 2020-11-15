@@ -1,0 +1,11 @@
+{
+  "ExpensivePaymentGateway": {
+    "available": 0
+  },
+  "CheapPaymentGateway": {
+    "available": 1
+  },
+  "PremiumPaymentGateway": {
+    "available": 1
+  }
+}
