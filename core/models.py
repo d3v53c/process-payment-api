@@ -86,20 +86,17 @@ class PaymentRequest:
         """
         Here's where actually the payment is made.
         """
-        while retry is not None and retry > -1:
+        while retry is not None and retry > 0:
             if gateway is None or payment_id is None:
                 raise Exception(
                     "Internal Server error. Invalid payment gateway.")
             try:
                 # make payment code here.
-                # something fishy
-                # payment_response = some_api.call()
-                # return payment_response
                 available = self.check_availability(gateway)
                 if not available:
                     print(f"Gateway: {gateway} is not available")
                     raise Exception("Payment Gateway not available.")
-                return dict(transaction_id='test'), None
+                return dict(message=f"Payment processed through {gateway}."), None
             except Exception as e:
                 if strict:
                     retry -= 1
@@ -109,7 +106,7 @@ class PaymentRequest:
                     gateway = payment_method.get('gateway')
                     payment_id = payment_method.get('payment_id')
                     strict = payment_method.get('strict')
-                    retry = payment_method.get('retry')
+                    retry = payment_method.get('retry') or 1
                 else:
                     retry -= 1
             else:

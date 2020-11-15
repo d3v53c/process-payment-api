@@ -53,5 +53,7 @@ class ProcessPaymentTest(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(True, response.json['success'])
 
+    # def test
+
     def tearDown(self):
         pass
