@@ -32,6 +32,27 @@ class ProcessPaymentTest(unittest.TestCase):
         self.assertEqual(False, response.json['success'])
         self.assertEqual(400, response.status_code)
 
+    def test_invalid_credit_card_data(self):
+        # Given
+        payload = json.dumps({
+            "CreditCardNumber": "1234",
+            "CardHolder": "Test Name",
+            "ExpirationDate": (dt.datetime.now() + dt.timedelta(minutes=1)).isoformat(),
+            "SecurityCode": "1234",
+            "Amount": 100
+        })
+
+        # When
+        response = self.app.post(
+            '/process-payment',
+            headers={"Content-Type": "application/json"},
+            data=payload,
+        )
+
+        # Then
+        self.assertEqual(400, response.status_code)
+        self.assertEqual(False, response.json['success'])
+
     def test_valid_data(self):
         # Given
         payload = json.dumps({
@@ -52,6 +73,7 @@ class ProcessPaymentTest(unittest.TestCase):
         # Then
         self.assertEqual(200, response.status_code)
         self.assertEqual(True, response.json['success'])
+        self.assertEqual("Payment is processed.", response.json['message'])
 
     # def test
 

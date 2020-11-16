@@ -96,7 +96,10 @@ class PaymentRequest:
                 if not available:
                     print(f"Gateway: {gateway} is not available")
                     raise Exception("Payment Gateway not available.")
-                return dict(message=f"Payment processed through {gateway}."), None
+                return dict(
+                    message=f"Payment processed through {gateway}.",
+                    gateway=gateway,
+                ), None
             except Exception as e:
                 if strict:
                     retry -= 1
