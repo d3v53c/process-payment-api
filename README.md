@@ -9,4 +9,4 @@ A mock API for payment processing using Flask in Python.
 `python app.py`
 
 ## Run tests:
-`python -m unittest tests/test_api.py`
+`python -m unittest tests`

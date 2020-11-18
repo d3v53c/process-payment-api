@@ -3,23 +3,21 @@ import json
 import datetime as dt
 
 from app import app
-
+from core.tests import *
+from core.api import MockApi
 
 DATE_TIME_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+
 
 class ProcessPaymentTest(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
+        self.api = MockApi()
+        self.api.reset()
 
     def test_expired_data(self):
         # Given
-        payload = json.dumps({
-            "CreditCardNumber": "123454567890123456",
-            "CardHolder": "Test",
-            "ExpirationDate": "2014-12-22T03:12:58.019077+00:00",
-            "SecurityCode": "1234",
-            "Amount": 100
-        })
+        payload = json.dumps(mock_expired_data())
 
         # When
         response = self.app.post(
@@ -34,13 +32,7 @@ class ProcessPaymentTest(unittest.TestCase):
 
     def test_invalid_credit_card_data(self):
         # Given
-        payload = json.dumps({
-            "CreditCardNumber": "1234",
-            "CardHolder": "Test Name",
-            "ExpirationDate": (dt.datetime.now() + dt.timedelta(minutes=1)).isoformat(),
-            "SecurityCode": "1234",
-            "Amount": 100
-        })
+        payload = json.dumps(mock_invalid_credit_card_data())
 
         # When
         response = self.app.post(
@@ -55,13 +47,23 @@ class ProcessPaymentTest(unittest.TestCase):
 
     def test_valid_data(self):
         # Given
-        payload = json.dumps({
-            "CreditCardNumber": "123454567890123456",
-            "CardHolder": "Test Name",
-            "ExpirationDate": (dt.datetime.now() + dt.timedelta(hours=1)).isoformat(),
-            "SecurityCode": "1234",
-            "Amount": 100
-        })
+        payload = json.dumps(mock_valid_data())
+
+        # When
+        response = self.app.post(
+            '/process-payment',
+            headers={"Content-Type": "application/json"},
+            data=payload,
+        )
+
+        # Then
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(True, response.json['success'])
+        self.assertEqual("Payment is processed.", response.json['message'])
+
+    def test_valid_data_without_security_code(self):
+        # Given
+        payload = json.dumps(mock_valid_data_without_security_code())
 
         # When
         response = self.app.post(
@@ -78,4 +80,4 @@ class ProcessPaymentTest(unittest.TestCase):
     # def test
 
     def tearDown(self):
-        pass
+        self.api.reset()

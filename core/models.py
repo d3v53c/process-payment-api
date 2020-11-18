@@ -2,6 +2,8 @@ import datetime as dt
 import time
 import json
 
+from core.api import MockApi
+
 
 class PaymentRequest:
     """
@@ -13,6 +15,7 @@ class PaymentRequest:
         self._expirationDate = kwargs.pop('ExpirationDate', None)
         self._securityCode = kwargs.pop('SecurityCode', None)
         self._amount = kwargs.pop('Amount', None)
+        self._api = MockApi()
         return
 
     def choose_payment_method(self):
@@ -21,8 +24,10 @@ class PaymentRequest:
         Returns 
         """
         payment_methods = self.get_payment_methods()
-        payment_method = dict(payment_id='cheap',
-                              **payment_methods.get('cheap'))
+        payment_method = dict(
+            payment_id='cheap',
+            **payment_methods.get('cheap'),
+        )
         if self._amount > 20:
             payment_method = dict(
                 payment_id='expensive',
@@ -72,6 +77,7 @@ class PaymentRequest:
             if err:
                 raise err
         except Exception as e:
+            # raise
             return None, e
         return response, None
 
@@ -86,19 +92,22 @@ class PaymentRequest:
         """
         Here's where actually the payment is made.
         """
-        while retry is not None and retry > 0:
+        attempts = 0
+        while retry is not None and retry >= 0:
             if gateway is None or payment_id is None:
                 raise Exception(
                     "Internal Server error. Invalid payment gateway.")
             try:
+                attempts += 1
                 # make payment code here.
                 available = self.check_availability(gateway)
                 if not available:
-                    print(f"Gateway: {gateway} is not available")
-                    raise Exception("Payment Gateway not available.")
+                    raise Exception(f"{gateway} not available.")
+                self._api.put(gateway, 'attempts', attempts)
                 return dict(
                     message=f"Payment processed through {gateway}.",
                     gateway=gateway,
+                    attempts=attempts,
                 ), None
             except Exception as e:
                 if strict:
@@ -106,14 +115,17 @@ class PaymentRequest:
                     continue
                 payment_method = self.get_lower_tier_payment_method(payment_id)
                 if payment_method:
+                    self._api.put(gateway, 'attempts', attempts)
+                    attempts = 0
                     gateway = payment_method.get('gateway')
                     payment_id = payment_method.get('payment_id')
                     strict = payment_method.get('strict')
-                    retry = payment_method.get('retry') or 1
+                    retry = payment_method.get('retry') or 0
                 else:
                     retry -= 1
-            else:
-                return None, Exception('Payment gateway timed out.')
+
+        self._api.put(gateway, 'attempts', attempts)
+        return None, Exception(f'{gateway} timed out.')
 
     def get_lower_tier_payment_method(self, identifier):
         """
@@ -186,6 +198,7 @@ class PaymentRequest:
         """
         Checks availability of the payment servers.
         """
-        with open('payment.server.json') as api:
-            data = json.load(api)
-        return data.get(server_alias, dict()).get('available', False)
+        return self._api.data.get(
+            server_alias,
+            dict(),
+        ).get('available', False)

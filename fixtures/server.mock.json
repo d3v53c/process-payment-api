@@ -1,0 +1,14 @@
+{
+  "ExpensivePaymentGateway": {
+    "available": 1,
+    "attempts": 0
+  },
+  "CheapPaymentGateway": {
+    "available": 1,
+    "attempts": 0
+  },
+  "PremiumPaymentGateway": {
+    "available": 1,
+    "attempts": 0
+  }
+}

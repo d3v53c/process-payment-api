@@ -28,7 +28,7 @@ class ProcessPayment(APIView):
                 raise ValidationError(f'Timestamp is past due.')
             processed_data, err = payment_request.process()
             if err:
-                raise Exception(str(err))
+                raise err
         except ValidationError as e:
             # print(e.messages)
             return Response(
@@ -37,8 +37,9 @@ class ProcessPayment(APIView):
                 error=True,
             )
         except Exception as unknown_err:
+            # raise
             return Response(
-                message='Unknown error occured.',
+                message=str(unknown_err),
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 error=True,
             )

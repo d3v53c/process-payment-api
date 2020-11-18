@@ -7,8 +7,7 @@ class DevelopmentConfig(Config):
     """
     DEVELOPMENT = True
     DEBUG = True
+    SERVER_MOCK = 'payment.server.json'
 
     # base api url
     BASE_URL = 'http://localhost:5000'
-
-    os.environ.setdefault('AUTHLIB_INSECURE_TRANSPORT', 'True')

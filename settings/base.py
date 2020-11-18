@@ -12,9 +12,9 @@ class Config(object):
     # project version
     VERSION_NAME = 'mock-api'
     VERSION_NUMBER = '0.0.1'
-
     DEBUG = False
     TESTING = False
+    SERVER_MOCK = None
 
     # base url where the server is hosted.
     BASE_URL = ''
