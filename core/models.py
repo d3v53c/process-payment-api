@@ -91,6 +91,8 @@ class PaymentRequest:
     ):
         """
         Here's where actually the payment is made.
+        To mock a payment gateway, a json file with attributes is implemented
+        as an API for interacting with the Payment gateway.
         """
         attempts = 0
         while retry is not None and retry >= 0:
