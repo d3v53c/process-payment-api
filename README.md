@@ -43,3 +43,9 @@ Recommendations:
  - Write as many tests as you think is enough to be certain about your solution works -
    Use SOLID principles.
  - Decouple the logic the prediction logic from the API as much as possible
+ 
+Notes:
+ - Prediction logic moved from API, and much tightly coupled with the data storage.
+ - Payment gateway is mocked using a file IO (core/api.py).
+ - Request information is held by `PaymentRequest` objects (core/models.py)
+ - API => (controller.py)
