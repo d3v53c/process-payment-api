@@ -3,13 +3,13 @@ import json
 import datetime as dt
 
 from app import app
-from core.tests import *
+from core.utils import *
 from core.api import MockApi
 
 DATE_TIME_ISO_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 
-class ProcessPaymentTest(unittest.TestCase):
+class ProcessPaymentApiTest(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
         self.api = MockApi()

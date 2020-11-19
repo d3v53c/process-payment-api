@@ -24,7 +24,8 @@ class ProcessPayment(APIView):
         pr_schema = PaymentRequestSchema()
         try:
             payment_request = pr_schema.load(data)
-            if payment_request.expiring_on() < time.time():
+            valid = payment_request.check_validity()
+            if not valid:
                 raise ValidationError(f'Timestamp is past due.')
             processed_data, err = payment_request.process()
             if err:

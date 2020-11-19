@@ -3,9 +3,9 @@ import json
 import os
 
 from core.api import MockApi
-from core.tests import *
+from core.utils import *
 from app import app
-from tests.test_api import ProcessPaymentTest
+from tests.test_api import ProcessPaymentApiTest
 
 GATEWAYS = [
     'ExpensivePaymentGateway',
@@ -14,7 +14,7 @@ GATEWAYS = [
 ]
 
 
-class CheapPaymentGatewayTest(ProcessPaymentTest):
+class CheapPaymentGatewayTest(ProcessPaymentApiTest):
     """
     TestCase 1.
     This TestCase verifies if CheapPaymentGateway is not available,
@@ -81,7 +81,7 @@ class CheapPaymentGatewayTest(ProcessPaymentTest):
         )
 
 
-class ExpensivePaymentGatewayTest(ProcessPaymentTest):
+class ExpensivePaymentGatewayTest(ProcessPaymentApiTest):
     """
     TestCase 2.
     This TestCase verifies if ExpensivePaymentGateway is not available,
@@ -148,7 +148,7 @@ class ExpensivePaymentGatewayTest(ProcessPaymentTest):
         )
 
 
-class ExpensiveAndCheapPaymentGatewayTest(ProcessPaymentTest):
+class ExpensiveAndCheapPaymentGatewayTest(ProcessPaymentApiTest):
     """
     TestCase 3.
     This TestCase verifies if ExpensivePaymentGateway is not available,
@@ -244,7 +244,7 @@ class ExpensiveAndCheapPaymentGatewayTest(ProcessPaymentTest):
         self.assertEqual(self.api.load()["CheapPaymentGateway"]["attempts"], 1)
 
 
-class PremiumPaymentGatewayTest(ProcessPaymentTest):
+class PremiumPaymentGatewayTest(ProcessPaymentApiTest):
     """
     TestCase 1.
     ExpensivePaymentGateway - available

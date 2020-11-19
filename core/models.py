@@ -18,6 +18,22 @@ class PaymentRequest:
         self._api = MockApi()
         return
 
+    def check_validity(self):
+        """
+        Check validity of Payment Request by comparing the timestamp
+        with current time.
+        """
+        return self.expiring_on() > time.time()
+
+    def update_amount(self, amount):
+        """
+        Update the amount value.
+        """
+        if not isinstance(amount, int):
+            raise Exception("Invalid amount data.")
+        
+        self._amount = amount
+
     def choose_payment_method(self):
         """
         Chooses a Payment method according to the request details.
